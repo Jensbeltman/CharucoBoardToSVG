@@ -1,4 +1,4 @@
-from charuco_dict_integer_from_string import str2arucoDict
+from charucoSVGUtil import str2arucoDict
 from charuco2svg import charuco2svg
 import numpy as np
 import cv2

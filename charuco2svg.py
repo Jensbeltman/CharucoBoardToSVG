@@ -3,16 +3,19 @@ import numpy as np
 import cv2
 from cv2 import aruco
 import glob
-import yaml
 import svgwrite
 from svgwrite import cm, mm
 
 
-def pixel_pr_marker(s):
+
+
+def markerPixelWidth(s, include_boarder = True):
     for i in range(1, 10):
         if s.find('X'+str(i)) is not -1:
-            return i+2
-
+            if include_boarder:
+                return i+2 #+2 beacause of the black border on each marker
+            else :
+                return i
 
 def draw_aruco(dwg, bit_mask, p, pxs, pxsize):
     offsetx = p[0]+pxsize
@@ -33,8 +36,8 @@ def charuco2svg(SQUARE_X, SQUARE_Y, SQUARE_LENGTH, MARKER_LENGTH, DICT, SVG_PATH
         SQUARE_Y, SQUARE_X, SQUARE_LENGTH, MARKER_LENGTH, DICT)
     print(CHARUCO_BOARD.ids)
 
-    pxpm = pixel_pr_marker(DICT_STRING)
-    board_markers = np.zeros((len(CHARUCO_BOARD.ids), pxpm-2, pxpm-2))
+    pxpm = markerPixelWidth(DICT_STRING)
+    board_markers = np.zeros((len(CHARUCO_BOARD.ids), pxpm-2, pxpm-2))#-2 to not waste memory on white boarder
 
     id_cnt = 0
     for ids in CHARUCO_BOARD.ids:
@@ -56,7 +59,7 @@ def charuco2svg(SQUARE_X, SQUARE_Y, SQUARE_LENGTH, MARKER_LENGTH, DICT, SVG_PATH
     even_rows = ((SQUARE_Y % 2) == 0)
     id_cnt = 0
     for y in range(SQUARE_Y):
-        for x in range(SQUARE_X):
+        for x in range( ):
             if even_rows:
                 if ((x % 2) != 0 and (y % 2) == 0) or ((x % 2) == 0 and (y % 2) != 0):
                     dwg.add(dwg.rect(insert=(x*SQUARE_LENGTH*100*cm, y*SQUARE_LENGTH*100*cm),
