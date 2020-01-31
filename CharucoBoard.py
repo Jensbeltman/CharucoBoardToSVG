@@ -4,6 +4,7 @@ import arucoUtililties as au
 import svgwrite
 from svgwrite import cm, mm
 
+
 class charuco2svg(object):
     def __init__(self,SQUARE_X, SQUARE_Y, SQUARE_LENGTH, MARKER_LENGTH, DICT_STRING, SVG_PATH='' ):
         #Variable Parsing
