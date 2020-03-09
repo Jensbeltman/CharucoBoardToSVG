@@ -1,7 +1,7 @@
 # CharucoBoardToSVG
 Python Script to generate svg files of specified charuco boards using OpenCV and draw swg
 
-Run CharucoBoard.py with -h for input information
+Run CharucoBoard.py an type in the requested information
 
-Need svgwrite to work
+Needs svgwrite to work
 
