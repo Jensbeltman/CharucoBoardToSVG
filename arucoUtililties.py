@@ -32,6 +32,6 @@ def markerWidth(dict_string, include_boarder = True):
                 return i
 
 def getMarkers(ids,DICT,pxpm):
-    markerImg = [cv2.aruco.drawMarker(DICT, id, pxpm) for id in ids]
+    markerImg = [cv2.aruco.drawMarker(DICT, id, pxpm) for id in ids.astype(int)]
     return markerImg
 
