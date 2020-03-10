@@ -63,7 +63,10 @@ if __name__ == "__main__":
     print("\tOutput file path")
 
     in_str=input().split(' ')
-    charuco2svg(int(in_str[0]),int(in_str[1]),float(in_str[2]),float(in_str[3]),in_str[4],in_str[5]).generateSVG()
+    if len(in_str)<4:
+        charuco2svg(12,20,0.0125,0.01,"DICT_4X4_250","./charuco.svg").generateSVG()
+    else:
+        charuco2svg(int(in_str[0]),int(in_str[1]),float(in_str[2]),float(in_str[3]),in_str[4],in_str[5]).generateSVG()
 
 
     # markerImgEE = charuco2svg(4,4,0.025,0.02,"DICT_4X4_50","./EE.svg")
