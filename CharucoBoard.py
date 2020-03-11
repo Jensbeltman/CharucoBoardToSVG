@@ -3,7 +3,8 @@ import cv2
 import arucoUtililties as au
 import svgwrite
 from svgwrite import cm, mm
-
+import json
+import argparse
 
 class charuco2svg(object):
     def __init__(self,SQUARE_X, SQUARE_Y, SQUARE_LENGTH, MARKER_LENGTH, DICT_STRING, SVG_PATH='' ):
@@ -36,16 +37,15 @@ class charuco2svg(object):
     def generateSVG(self):
         oddRows=self.SQUARE_Y%2
         markerPositions = [[oddRows==(i+j)%2 for i in range(self.SQUARE_X)]for j in range(self.SQUARE_Y)]
-        print(self.charucoBoard.ids.flatten())
         markers = au.getMarkers(self.charucoBoard.ids.flatten(),self.DICT,au.markerWidth(self.DICT_STRING))
 
 
-        
+        markerIdx = 0
         for x in range(self.SQUARE_X):
             for y in range(self.SQUARE_Y):
                 if markerPositions[y][x]:
-                    self.drawMarker(markers[int((y+x)/2)], (x*self.SQUARE_LENGTH+self.markerOffset, y*self.SQUARE_LENGTH+self.markerOffset))
-                    
+                    self.drawMarker(markers[markerIdx], (x*self.SQUARE_LENGTH+self.markerOffset, y*self.SQUARE_LENGTH+self.markerOffset))
+                    markerIdx+=1
                 else:
                     self.drawing.add(self.drawing.rect(insert=(x*self.SQUARE_LENGTH*100*cm, y*self.SQUARE_LENGTH*100*cm),
                                     size=(self.SQUARE_LENGTH*100*cm, self.SQUARE_LENGTH*100*cm), fill='black'))
@@ -53,30 +53,30 @@ class charuco2svg(object):
         self.drawing.save()
 
 
+
 if __name__ == "__main__":
-    print("Types in the following variables seperated by spaces and or commas:")
-    print("\tNumber of rows")
-    print("\tNumber of columns")
-    print("\tRow/columns size in meters")
-    print("\tMarkers size in in meters")
-    print("\tName of aruco dictionary (eg. DICT_4X4_50)")
-    print("\tOutput file path")
+    parser = argparse.ArgumentParser(description="Generates JSON with charucoBoard parameters")
+    parser.add_argument('squaresX',help="squaresX parameter used for OpenCv charuco board initialization")
+    parser.add_argument('squaresY',help="squaresY parameter used for OpenCv charuco board initialization")
+    parser.add_argument('squareLength',help="squareLength parameter used for OpenCv charuco board initialization")
+    parser.add_argument('markerLength',help="markerLength parameter used for OpenCv charuco board initialization")
+    parser.add_argument('dictionary',help="dictionary parameter used for OpenCv charuco board initialization")
+    parser.add_argument("--out_file",nargs="?",default='./charucoBoard.svg',help="output file")
+    parser.add_argument("--charucoBoardJSON",nargs="?",default='./charucoBoard.json',help="output file")
 
-    in_str=input().split(' ')
-    if len(in_str)<4:
-        charuco2svg(12,20,0.0125,0.01,"DICT_4X4_250","./charuco.svg").generateSVG()
-    else:
-        charuco2svg(int(in_str[0]),int(in_str[1]),float(in_str[2]),float(in_str[3]),in_str[4],in_str[5]).generateSVG()
+    args = parser.parse_args()
+
+    
+    params = {'squaresX':args.squaresX,'squaresY':args.squaresY,'squareLength':args.squareLength,'markerLength':args.markerLength,'dictionary':args.dictionary}
+
+    
+    with open(args.charucoBoardJSON, 'w') as outfile:
+        json.dump(params, outfile,indent=4)
+    print("Wrote charuco board params to {}".format(args.charucoBoardJSON))
+   
+    charuco2svg(int(args.squaresX),int(args.squaresY),float(args.squareLength),float(args.markerLength),args.dictionary,args.out_file).generateSVG()
+    print("Saved charuco board as {}".format(args.out_file))
 
 
-    # markerImgEE = charuco2svg(4,4,0.025,0.02,"DICT_4X4_50","./EE.svg")
-    # markerImgOO = charuco2svg(5,5,0.025,0.02,"DICT_4X4_50","./OO.svg")
-    # markerImgEO = charuco2svg(4,5,0.025,0.02,"DICT_4X4_50","./EO.svg")
-    # markerImgOE = charuco2svg(5,4,0.025,0.02,"DICT_4X4_50","./OE.svg")
-
-    # markerImgEE.generateSVG()
-    # markerImgOO.generateSVG()
-    # markerImgEO.generateSVG()
-    # markerImgOE.generateSVG()
 
 
