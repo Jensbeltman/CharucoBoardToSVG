@@ -41,8 +41,8 @@ class charuco2svg(object):
 
 
         markerIdx = 0
-        for x in range(self.SQUARE_X):
-            for y in range(self.SQUARE_Y):
+        for y in range(self.SQUARE_Y):
+            for x in range(self.SQUARE_X):
                 if markerPositions[y][x]:
                     self.drawMarker(markers[markerIdx], (x*self.SQUARE_LENGTH+self.markerOffset, y*self.SQUARE_LENGTH+self.markerOffset))
                     markerIdx+=1
