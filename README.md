@@ -91,7 +91,7 @@ Supported marker dictionaries are:
 - DICT_APRILTAG_36h11
 
 Internally, the list is obtained from OpenCV, so if more formats are added in future, they will be automatically
-supported (provided the naming isn't changed to much).
+supported (provided the naming isn't changed too much).
 
 The board label is optional, and if not specified then one will be created from the dictionary name and the square and
 marker sizes.
