@@ -2,8 +2,11 @@ import argparse
 import json
 import pathlib
 
-from CharucoBoard import Charuco2Svg
+from CharucoBoard import Charuco2Svg, supported_dictionaries
 from arucoUtililties import toDict
+
+# For conversion of the SVG to PNG and PDF
+import cairosvg
 
 
 def prepare_argument_parser():
@@ -18,6 +21,11 @@ def prepare_argument_parser():
     parser.add_argument('dictionary', type=str, help="dictionary parameter used for OpenCv charuco board initialization")
     parser.add_argument("output_directory",  help="Path to the output directory")
     parser.add_argument("--number_boards", type=int, default=1, help="The number of boards to generate")
+    parser.add_argument("--output_png", type=int, choices=(0, 1), default=1, help="Also output PNG files")
+    parser.add_argument("--png_width", type=int, default=2048, help="Specify the width of the PNG image in pixels")
+    parser.add_argument("--png_height", type=int, default=2048, help="Specify the height of the PNG image in pixels")
+    parser.add_argument("--output_pdf", type=int, choices=(0, 1), default=1, help="Also output PDF files")
+    parser.add_argument("--pdf_dpi", type=int, default=600, help="The resolution of the PDF image")
     return parser
 
 
@@ -29,6 +37,11 @@ def main(args):
     output_directory = pathlib.Path(args.output_directory)
     if not output_directory.exists():
         raise FileNotFoundError(f"The specified output directory {str(output_directory)} doesn't exist")
+
+    # Marker dictionaries
+    if args.dictionary not in supported_dictionaries:
+        ValueError(f"The '{args.dictionary}' value for the dictionary is not supported. "
+                   f"Please use -h to see the values")
 
     dictionary = toDict(args.dictionary)
     number_markers_in_dictionary = dictionary.bytesList.shape[0]
@@ -53,8 +66,19 @@ def main(args):
         print(f"Wrote charuco board params to {output_json_file}")
 
         output_svg_file = output_directory / f"board_{board_number}.svg"
-        Charuco2Svg(**params, svg_path=output_svg_file).generate_svg()
+        svg_data = Charuco2Svg(**params, svg_path=output_svg_file).generate_svg()
         print(f"Saved charuco board as {output_svg_file}")
+
+        if args.output_png:
+            output_png_file = output_directory / f"board_{board_number}.png"
+            cairosvg.svg2png(svg_data.tostring(), output_width=args.png_width, output_height=args.png_height,
+                             write_to=str(output_png_file))
+            print(f"Saved png version as {output_png_file}")
+
+        if args.output_pdf:
+            output_pdf_file = output_directory / f"board_{board_number}.pdf"
+            cairosvg.svg2pdf(svg_data.tostring(), dpi=args.pdf_dpi, write_to=str(output_pdf_file))
+            print(f"Saved pdf version as {output_pdf_file}")
 
 
 if __name__ == "__main__":
