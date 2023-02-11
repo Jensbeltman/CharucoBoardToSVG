@@ -40,8 +40,9 @@ Example
 
 To generate a set of nine 6x6 boards using the DICT_4X4_250 dictionary:
 
-    python3 make_charucoboards.py 6 6 0.165 0.1 DICT_4X4_250 ./boards/6x6_DICT_4X4_250 --number_boards=9
-
+```shell
+python3 make_charucoboards.py 6 6 0.165 0.1 DICT_4X4_250 ./boards/6x6_DICT_4X4_250 --number_boards=9
+```
 The generated files are included in this repository.  
 
 
@@ -103,13 +104,15 @@ Example
 To generate a 7x7 chessboard starting at marker id 24 (which is the first marker of the second board in a set of boards)
 using the APRILTAG_36h11 dictionary:
 
-    python3 CharucoBoard.py 7 7 0.165 0.1 DICT_APRILTAG_36h11  --start_id=24 \
+```shell
+python3 CharucoBoard.py 7 7 0.165 0.1 DICT_APRILTAG_36h11  --start_id=24 \
     --output_file="./boards/7x7_DICT_APRILTAG_36h11/board2.svg" \
     --charuco_board_json="./boards/7x7_DICT_APRILTAG_36h11/board2.json"
+```
 
 The output directories must exist.
 
 Notes
 --
-- Needs OpenCV, svgwrite, cairosvg
+- Needs OpenCV as well as the requirements given in the requirements.txt file
 
