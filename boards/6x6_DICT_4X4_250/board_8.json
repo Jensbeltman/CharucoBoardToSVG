@@ -1,0 +1,9 @@
+{
+    "squaresX": 6,
+    "squaresY": 6,
+    "squareLength": 0.165,
+    "markerLength": 0.1,
+    "dict_string": "DICT_4X4_250",
+    "start_id": 144,
+    "board_label": "4X4_250, 0.165, 0.1"
+}
