@@ -51,12 +51,34 @@ class Charuco2Svg(object):
                                            size=(self.unit_str(self.marker_length),
                                                  self.unit_str(self.marker_length)),
                                            fill='black', shape_rendering="crispEdges"))
+        # Some PDF renderers produce a line between the whites squares.  To circumvent this, enlarge the rectangle
+        # by the maximum amount in the vertical and then horizontal directions, leading to overlapping rectangles
+        for x in range(marker_image.shape[1]):
+            for y in range(marker_image.shape[0]):
+                start_y = y
+                if marker_image[y][x] == 255:
+                    while y <= marker_image.shape[0]:
+                        if marker_image[y+1][x] == 255:
+                            y += 1
+                        else:
+                            break
+                    self.drawing.add(self.drawing.rect(
+                        insert=(self.unit_str(point[0] + x * self.px_m), self.unit_str(point[1] + start_y * self.px_m)),
+                        size=(self.unit_str(self.px_m), self.unit_str((y - start_y + 1) * self.px_m)), fill='white',
+                        shape_rendering="crispEdges"))
+
         for y in range(marker_image.shape[0]):
             for x in range(marker_image.shape[1]):
+                start_x = x
                 if marker_image[y][x] == 255:
+                    while x <= marker_image.shape[1]:
+                        if marker_image[y][x+1] == 255:
+                            x += 1
+                        else:
+                            break
                     self.drawing.add(self.drawing.rect(
-                        insert=(self.unit_str(point[0] + x * self.px_m), self.unit_str(point[1] + y * self.px_m)),
-                        size=(self.unit_str(self.px_m), self.unit_str(self.px_m)), fill='white',
+                        insert=(self.unit_str(point[0] + start_x * self.px_m), self.unit_str(point[1] + y * self.px_m)),
+                        size=(self.unit_str((x - start_x + 1) * self.px_m), self.unit_str(self.px_m)), fill='white',
                         shape_rendering="crispEdges"))
 
     def generate_svg(self):
