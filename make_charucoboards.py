@@ -14,10 +14,14 @@ def prepare_argument_parser():
         description="Generates a set of charucoboard svg files and accompanying JSON files with the parameters")
     parser.add_argument('squaresX', type=int, help="The number of columns in the board")
     parser.add_argument('squaresY', type=int, help="The number of rows in the board")
-    parser.add_argument('squareLength', type=float,
-                        help="The side length of the chessboard square in meters")
-    parser.add_argument('markerLength', type=float,
-                        help="The side length of the marker square in meters (must be less than the squareLength)")
+    parser.add_argument('--board_size', type=float, default=0.,
+                        help="The side length of the square chessboard in meters")
+    parser.add_argument('--squareLength', type=float, default=0.,
+                        help="The side length of the chessboard square in meters; this will be calculated "
+                             "automatically if --board_size is specified ")
+    parser.add_argument('--markerLength', type=float, default=0.,
+                        help="The side length of the marker square in meters (must be less than the squareLength); "
+                             "this will be calculated automatically if --board_size is specified ")
     parser.add_argument('dictionary', type=str, help="dictionary parameter used for OpenCv charuco board initialization")
     parser.add_argument("output_directory",  help="Path to the output directory")
     parser.add_argument("--number_boards", type=int, default=1, help="The number of boards to generate")
@@ -51,6 +55,13 @@ def main(args):
     if number_markers_needed > number_markers_in_dictionary:
         raise ValueError(f"The number of markers {number_markers_in_dictionary} in the dictionary {args.dictionary} "
                          f"isn't enough for {args.number_boards} boards:  {number_markers_needed} markers needed")
+
+    if args.board_size > 0:
+        args.squareLength = args.board_size / args.squaresX
+        args.markerLength = args.squareLength * 0.6    # This is a divisor that was used in previous boards
+    elif args.squareLength == 0 or args.markerLength == 0:
+        raise ValueError(f"Either the board size must be specified, or both the square length and marker length "
+                         f"must be specified")
 
     board_label = f"{args.dictionary[len('DICT_'):]}, {args.squareLength}, {args.markerLength}"
 
