@@ -1,9 +1,9 @@
 {
     "squaresX": 8,
     "squaresY": 8,
-    "squareLength": 0.165,
-    "markerLength": 0.1,
+    "squareLength": 0.1143,
+    "markerLength": 0.0693,
     "dict_string": "DICT_APRILTAG_36h11",
     "start_id": 256,
-    "board_label": "APRILTAG_36h11, 0.165, 0.1"
+    "board_label": "APRILTAG_36h11, 0.1143, 0.0693"
 }
