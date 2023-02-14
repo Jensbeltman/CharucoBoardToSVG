@@ -1,0 +1,9 @@
+{
+    "squaresX": 6,
+    "squaresY": 4,
+    "squareLength": 0.088,
+    "markerLength": 0.054,
+    "dict_string": "DICT_APRILTAG_36h11",
+    "start_id": 12,
+    "board_label": "APRILTAG_36h11, 0.088, 0.054"
+}

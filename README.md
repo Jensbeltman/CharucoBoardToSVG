@@ -45,6 +45,8 @@ python3 make_charucoboards.py 6 6 0.165 0.1 DICT_4X4_250 ./boards/6x6_DICT_4X4_2
 ```
 The generated files are included in this repository.  
 
+The example 6x6 and 8x8 boards are 36 inches square.  The example 8x6 board is 24 inches by 18 inches.
+
 
 ## CharucoBoardToSVG
 
