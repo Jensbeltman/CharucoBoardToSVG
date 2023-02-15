@@ -1,5 +1,6 @@
 import math
 import pathlib
+import typing
 
 import cv2
 import arucoUtililties as au
@@ -13,7 +14,19 @@ supported_dictionaries = [s for s in dir(cv2.aruco) if s.startswith('DICT_') and
 
 class Charuco2Svg(object):
     def __init__(self, squaresX, squaresY, squareLength, markerLength, dict_string, start_id=0, board_label="",
-                 svg_path='', with_crop_marks=False):
+                 svg_path='', border_dimensions: [None, typing.Tuple[float, float]] = None):
+        """
+        Create an SVG drawing for the charucoboard (which may have another marker design than Aruco)
+        :param squaresX:        The number of columns of squares
+        :param squaresY:        The number of rows of squares
+        :param squareLength:    The side length of a square in meters
+        :param markerLength:    The side length of a marker in meters (must be less than squareLength)
+        :param dict_string:     The name of the marker dictionary
+        :param start_id:        The starting id in the marker dicctionary
+        :param board_label:     A text label for the board (inserted on top leftmost black square)
+        :param svg_path:        The path to the SVG file
+        :param border_dimensions:   None, or a tuple of dimensions (bleed size, margin size) in meters
+        """
         # Variable Parsing
         self.squares_x = squaresX
         self.squares_y = squaresY
@@ -23,6 +36,17 @@ class Charuco2Svg(object):
         self.dictionary = au.toDict(self.dict_string)
         self.start_id = start_id
         self.board_label = board_label
+
+        # Allow for two zones around the board, the bleed and the margin.  The board material is trimmed at the
+        # interface of these two zones.  See: https://en.wikipedia.org/wiki/Bleed_(printing)
+        if border_dimensions is not None:
+            self.bleed = border_dimensions[0] / self.square_length
+            self.margin = border_dimensions[1] / self.square_length
+            self.border_size = (self.bleed + self.margin)       # in square_length units
+            self.crop_line_length = 0.25  # in square_length units
+        else:
+            self.border_size = 0.
+
         self.text_scale = 0.1   # in square_length units
         self.unit = cm
         self.unit_multiplier = 100
@@ -39,12 +63,10 @@ class Charuco2Svg(object):
         self.marker_width = au.markerWidth(self.dict_string)
         self.px_m = self.marker_length / self.marker_width
         self.markerOffset = ((self.square_length - self.marker_length) / 2.0)
-        self.border_offset = 0.05 if with_crop_marks else 0  # in square_length units
-        self.crop_line_length = 0.25 if with_crop_marks else 0  # in square_length units
         self.drawing = svgwrite.Drawing(svg_path,
-                                        size=(self.unit_str((self.squares_x + 2 * self.border_offset) *
+                                        size=(self.unit_str((self.squares_x + 2 * self.border_size) *
                                                             self.square_length),
-                                              self.unit_str((self.squares_y + 2 * self.border_offset) *
+                                              self.unit_str((self.squares_y + 2 * self.border_size) *
                                                             self.square_length)),
                                         profile='full')
 
@@ -92,34 +114,23 @@ class Charuco2Svg(object):
         markers = au.getMarkers(self.charucoBoard.ids.flatten(), self.dictionary, self.marker_width, self.start_id)
         marker_ids = [f"{marker_index + self.start_id}" for marker_index in range(len(markers))]
 
-        if self.border_offset > 0:
-            # Add circles at the corners for the crop marks
-            board_corners = [(0, 0), (self.squares_x, 0), (0, self.squares_y), (self.squares_x, self.squares_y)]
-            for (x, y) in board_corners:
-                self.drawing.add(self.drawing.circle(
-                    center=(self.unit_str((x + self.border_offset) * self.square_length),
-                            self.unit_str(((y + self.border_offset) * self.square_length))),
-                    r=self.unit_str(self.square_length * self.border_offset/math.sqrt(2)),
-                    shape_rendering="crispEdges", stroke="black",
-                    stroke_width=1, fill="none"))
-
         # Draw the squares
         markerIdx = 0
         for y in range(self.squares_y):
             for x in range(self.squares_x):
                 if markerPositions[y][x]:
                     self.drawing.add(
-                        self.drawing.rect(insert=(self.unit_str((x + self.border_offset) * self.square_length),
-                                                  self.unit_str((y + self.border_offset) * self.square_length)),
+                        self.drawing.rect(insert=(self.unit_str((x + self.border_size) * self.square_length),
+                                                  self.unit_str((y + self.border_size) * self.square_length)),
                                           size=(self.unit_str(self.square_length), self.unit_str(self.square_length)),
                                           fill='white', shape_rendering="crispEdges"))
                     self.draw_marker(markers[markerIdx], (
-                        (x + self.border_offset) * self.square_length + self.markerOffset,
-                        (y + self.border_offset) * self.square_length + self.markerOffset))
+                        (x + self.border_size) * self.square_length + self.markerOffset,
+                        (y + self.border_size) * self.square_length + self.markerOffset))
 
                     # Label the marker with its id in the top left corner
-                    offset_x = x + self.border_offset + 0.5     # Add 0.5 to center the id in the square horizontally
-                    offset_y = y + self.border_offset + self.text_scale
+                    offset_x = x + self.border_size + 0.5     # Add 0.5 to center the id in the square horizontally
+                    offset_y = y + self.border_size + self.text_scale
                     self.drawing.add(self.drawing.text(marker_ids[markerIdx],
                                                        insert=(self.unit_str(offset_x * self.square_length),
                                                                self.unit_str(offset_y * self.square_length)),
@@ -131,14 +142,14 @@ class Charuco2Svg(object):
                 else:
                     # Add a black square
                     self.drawing.add(
-                        self.drawing.rect(insert=(self.unit_str((x + self.border_offset) * self.square_length),
-                                                  self.unit_str((y + self.border_offset) * self.square_length)),
+                        self.drawing.rect(insert=(self.unit_str((x + self.border_size) * self.square_length),
+                                                  self.unit_str((y + self.border_size) * self.square_length)),
                                           size=(self.unit_str(self.square_length), self.unit_str(self.square_length)),
                                           fill='black', shape_rendering="crispEdges"))
 
         # Label the board in top left black square
-        offset_x = self.border_offset + (0.5 if ((self.squares_x % 2) == 1) else 1.5)      # in square_length units
-        offset_y = self.border_offset + self.text_scale
+        offset_x = self.border_size + (0.5 if ((self.squares_x % 2) == 1) else 1.5)      # in square_length units
+        offset_y = self.border_size + self.text_scale
         self.drawing.add(self.drawing.text(self.board_label,
                                            insert=(self.unit_str(offset_x * self.square_length),
                                                    self.unit_str(offset_y * self.square_length)),
@@ -147,18 +158,23 @@ class Charuco2Svg(object):
                                            font_family="Arial, Helvetica, sans-serif",
                                            shape_rendering="crispEdges"))
 
-        if self.border_offset > 0:
+        if self.border_size > 0:
             # Add lines for crop marks at the corners
-            lines = [(0, 0, 1, 0), (0, 0, 0, 1),
-                     (self.squares_x, 0, -1, 0), (self.squares_x, 0, 0, 1),
-                     (0, self.squares_y, 1, 0), (0, self.squares_y, 0, -1),
-                     (self.squares_x, self.squares_y, -1, 0), (self.squares_x, self.squares_y, 0, -1)]
+            lines = [(self.bleed, self.bleed, 1, 0), (self.bleed, self.bleed, 0, 1),
+                     (self.squares_x + self.border_size + self.margin, self.bleed, -1, 0),
+                     (self.squares_x + self.border_size + self.margin, self.bleed, 0, 1),
+                     (self.bleed, self.squares_y + self.border_size + self.margin, 1, 0),
+                     (self.bleed, self.squares_y + self.border_size + self.margin, 0, -1),
+                     (self.squares_x + self.border_size + self.margin,
+                     self.squares_y + self.border_size + self.margin, -1, 0),
+                     (self.squares_x + self.border_size + self.margin,
+                      self.squares_y + self.border_size + self.margin, 0, -1)]
             for (x, y, dir_x, dir_y) in lines:
                 self.drawing.add(self.drawing.line(
-                    start=(self.unit_str(((x + self.border_offset) - dir_x * self.border_offset) * self.square_length),
-                           self.unit_str(((y + self.border_offset) - dir_y * self.border_offset) * self.square_length)),
-                    end=(self.unit_str(((x + self.border_offset) + dir_x * self.crop_line_length) * self.square_length),
-                         self.unit_str(((y + self.border_offset) + dir_y * self.crop_line_length) * self.square_length)),
+                    start=(self.unit_str((x - dir_x * self.bleed) * self.square_length),
+                           self.unit_str((y - dir_y * self.bleed) * self.square_length)),
+                    end=(self.unit_str((x + dir_x * self.crop_line_length) * self.square_length),
+                         self.unit_str((y + dir_y * self.crop_line_length) * self.square_length)),
                     shape_rendering="crispEdges", stroke="black", stroke_width=1, fill="none"))
 
         self.drawing.save()
