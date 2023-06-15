@@ -1,6 +1,6 @@
 # CharucoBoardToSVG
 
-There are two programs to generate Charucoboards.
+There are two programs to generate Charucoboards.  There is also a program to create a single board with a grid of markers.
 
 ## make_charucoboards
 
@@ -28,12 +28,14 @@ Generates a set of charucoboard SVG files and accompanying JSON files with the p
     --png_height PNG_HEIGHT             Specify the height of the PNG image in pixels (default 2048)
     --output_pdf {0,1}                  Also output PDF files (default 1)
     --pdf_dpi PDF_DPI                   The resolution of the PDF image (default 600)
+    --pdf_bleed PDF_BLEED               Size of bleed zone in mm, for PDF output only (default 6.35 mm)
+    --pdf_margin PDF_MARGIN             Size of margin zone in mm, for PDF output only (default 10 mm)
 
 
 This program will call the CharucoBoardToSVG program to create a set of charucoboards.  Please see below for
 the description of the parameters.
 
-Boards with an even number of rows and columns are preferred since a corner will be at the center of the board.
+Boards with an even number of rows and columns are preferred since then there will be a corner point at the center of the board.
 
 Example
 --
@@ -46,6 +48,11 @@ python3 make_charucoboards.py 6 6 0.165 0.1 DICT_4X4_250 ./boards/6x6_DICT_4X4_2
 The generated files are included in this repository.  
 
 The example 6x6 and 8x8 boards are 36 inches square.  The example 8x6 board is 24 inches by 18 inches.
+
+The PDF files are slightly different from the other two image formats, since crop marks are added around the boards.
+The crop marks are at the interface between the bleed and margin zones; the material outside the crop marks is
+the bleed zone and this is what is discarded by the crop.  The margin provides an area that may
+be used to hold the board (in a frame, for example).
 
 
 ## CharucoBoardToSVG
@@ -118,3 +125,9 @@ Notes
 --
 - Needs OpenCV as well as the requirements given in the requirements.txt file
 
+## aruco_makers
+
+This program will create a grid of Aruco markers, in the same way as the make_charucoboards program, but with no black 
+squares.  
+The same command line arguments are used (except without the --number_boards option).
+This program will also create the same four types of files (.json, .png, .svg and .pdf).
