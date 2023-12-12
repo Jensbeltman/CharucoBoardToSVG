@@ -18,7 +18,9 @@ def prepare_argument_parser():
                         help="The side length of the chessboard square in meters")
     parser.add_argument('markerLength', type=float, default=0.,
                         help="The side length of the marker square in meters (must be less than the squareLength)")
-    parser.add_argument('dictionary', type=str, help="dictionary parameter used for OpenCv charuco board initialization")
+    parser.add_argument('dictionary', type=str,
+                        help="dictionary parameter used for OpenCv charuco board initialization; "
+                             f"must be one of  {', '.join(supported_dictionaries)}")
     parser.add_argument("output_directory",  help="Path to the output directory")
     parser.add_argument("--number_boards", type=int, default=1, help="The number of boards to generate")
     parser.add_argument("--output_png", type=int, choices=(0, 1), default=1, help="Also output PNG files")
