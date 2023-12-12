@@ -1,3 +1,10 @@
+"""
+Copyright 2023 Felix & Paul Studios Inc.  MIT license
+
+This program generates an Aruco grid board SVG file and also a JSON file with the parameters.
+
+
+"""
 import pathlib
 import typing
 

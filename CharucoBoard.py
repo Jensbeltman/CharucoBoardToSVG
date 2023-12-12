@@ -1,4 +1,10 @@
-import math
+"""
+Original version by Jensbeltman https://github.com/jensbeltman/CharucoBoardToSVG
+
+Modifications copyright 2023: Felix & Paul Studios Inc.  MIT license
+
+"""
+
 import pathlib
 import typing
 

@@ -1,3 +1,15 @@
+"""
+Copyright 2023 Felix & Paul Studios Inc.  MIT license
+
+This program calls an instance of the class Charuco2Svg to create a set of charucoboards in various formats and
+write JSON files with the board parameters.
+
+usage: make_charucoboards.py [-h] [--number_boards NUMBER_BOARDS] [--output_png {0,1}] \
+        [--png_width PNG_WIDTH] [--png_height PNG_HEIGHT] [--output_pdf {0,1}] [--pdf_dpi PDF_DPI]
+    squaresX squaresY squareLength markerLength dictionary output_directory
+
+"""
+
 import argparse
 import json
 import pathlib
