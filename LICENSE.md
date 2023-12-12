@@ -1,6 +1,7 @@
 MIT License
 
 Copyright (c) 2020 Jens Beltman
+
 Copyright (c) 2023 Felix & Paul Studios Inc.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
